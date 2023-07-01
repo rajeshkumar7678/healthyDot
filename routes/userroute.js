@@ -26,17 +26,19 @@ userroute.post("/login",async(req,res)=>{
     let {email,password}=req.body
        
     try {
-        let data=await usermodel.find({email})
+        let data=await usermodel.findOne({email})
         console.log(data)
-        if(data.length>0){
-            bcrypt.compare(password, data[0].password, (err, result)=> {
+        if(data){
+            bcrypt.compare(password, data.password, (err, result)=> {
                 if(result){
-                    res.status(200).send({"msg":`login sucessfull`,"name":data[0].name,"token":jwt.sign({"userid":data[0]._id }, 'masai',{expiresIn:"1hr"})})
+                    res.status(200).send({"msg":`login sucessfull`,"name":data.name,"token":jwt.sign({"userid":data._id }, 'masai',{expiresIn:"1hr"})})
                 }else{
                     res.status(400).send({"msg":"user not found"})
                 }
             });
-        }       
+        } else{
+            res.send("uer not found")
+        }      
     } catch (error) {
         res.status(400).send({"msg":error})
         
